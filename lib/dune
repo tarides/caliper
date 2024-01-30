@@ -1,0 +1,19 @@
+(rule
+ (with-stdout-to
+  asset.ml
+  (progn
+   (echo "let chart_js = {js|")
+   (cat html-assets/chart.js)
+   (echo "|js}\n")
+   (echo "let index_html = {html|")
+   (cat html-assets/index.html)
+   (echo "|html}\n")
+   (echo "let main_css = {css|")
+   (cat html-assets/main.css)
+   (echo "|css}\n"))))
+
+(library
+ (name caliper)
+ (libraries unix sexplib mustache base)
+ (preprocess
+  (pps ppx_sexp_conv)))

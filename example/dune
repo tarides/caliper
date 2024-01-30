@@ -1,0 +1,14 @@
+(rule
+ (targets index.html chart.js main.css)
+ (mode
+  (promote
+   (into html-output/)))
+ (deps
+  %{bin:caliper}
+  (source_tree cache))
+ (action
+  (run caliper generate-html -o .)))
+
+(alias
+ (name example)
+ (deps index.html))

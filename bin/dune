@@ -1,0 +1,4 @@
+(executable
+ (public_name caliper)
+ (name main)
+ (libraries caliper cmdliner))

@@ -14,6 +14,8 @@ depends: [
   "cmdliner"
   "mustache"
   "tailwindcss"
+  "yojson"
+  "ISO8601"
   "odoc" {with-doc}
 ]
 build: [

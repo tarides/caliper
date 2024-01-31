@@ -19,4 +19,4 @@
  (name caliper)
  (synopsis "Benchmarking toolchain and library for OCaml")
  (description "Benchmarking toolchain and library for OCaml.")
- (depends sexplib ppx_sexp_conv cmdliner mustache tailwindcss))
+ (depends sexplib ppx_sexp_conv cmdliner mustache tailwindcss yojson ISO8601))

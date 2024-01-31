@@ -21,15 +21,36 @@ let print_diff diff =
         rdiff.Diff.entry_diffs;
       print_newline ()
 
-let run_print_diff cache_dir collection_name =
+let run_print_diff cache_dir project_name collection_name =
   let t = Cache.load cache_dir in
-  let filtered_t =
-    match collection_name with
-    | None -> t
-    | Some name -> List.filter (fun collection -> collection.name = name) t
+  let project_name =
+    match project_name with
+    | None ->
+        Printf.eprintf "Specify the project name";
+        exit 1
+    | Some name -> name
   in
-  let diffs = Diff.diff_latest filtered_t in
-  List.iter print_diff diffs
+  let project_opt =
+    List.find_opt (fun project -> project.name = project_name) t
+  in
+  match project_opt with
+  | None ->
+      Printf.eprintf "Project: %s not found\n" project_name;
+      exit 1
+  | Some project ->
+      let filtered_collections =
+        match collection_name with
+        | Some name ->
+            List.filter
+              (fun (collection : collection) -> collection.name = name)
+              project.collections
+        | None -> project.collections
+      in
+      List.iter
+        (fun collection ->
+          let diffs = Diff.diff_latest collection in
+          List.iter print_diff diffs)
+        filtered_collections
 
 let run_generate_html cache_dir output_dir =
   let t = Cache.load cache_dir in
@@ -49,6 +70,10 @@ let cache_dir_arg =
         (Sys.getenv_opt "XDG_BENCHMARK_CACHE" |> Option.value ~default:"./cache")
     & info [ "d"; "cache-dir" ] ~env ~docv:"CACHE_DIR" ~doc)
 
+let project_name_arg =
+  let doc = "Name of the benchmark project to filter by." in
+  Arg.(value & pos 0 (some string) None & info [] ~docv:"PROJECT_NAME" ~doc)
+
 let collection_name_arg =
   let doc = "Name of the benchmark collection to filter by." in
   Arg.(
@@ -57,9 +82,14 @@ let collection_name_arg =
     & info [ "c"; "collection" ] ~docv:"COLLECTION_NAME" ~doc)
 
 let diff_cmd =
-  let doc = "Display the diff in the benchmark history." in
+  let doc =
+    "Display the diff in the benchmark history for a given project and \
+     collection."
+  in
   let term =
-    Term.(const run_print_diff $ cache_dir_arg $ collection_name_arg)
+    Term.(
+      const run_print_diff $ cache_dir_arg $ project_name_arg
+      $ collection_name_arg)
   in
   let info =
     Cmd.info "print-diff" ~doc ~sdocs:"COMMON OPTIONS" ~exits:Cmd.Exit.defaults
@@ -69,7 +99,7 @@ let diff_cmd =
 let output_dir_arg =
   let doc = "The directory where the HTML assets will be generated." in
   Arg.(
-    value & opt dir "./output"
+    value & opt string "./html-output"
     & info [ "o"; "output-dir" ] ~docv:"OUTPUT_DIR" ~doc)
 
 let generate_html_cmd =

@@ -1,12 +1,37 @@
+(subdir
+ html-assets
+ (rule
+  (target main.css)
+  (deps
+   (:config %{workspace_root}/tailwind.config.js)
+   (:input styles.css)
+   (source_tree ./))
+  (action
+   (chdir
+    %{workspace_root}
+    (run tailwindcss -m -c %{config} -i %{input} -o %{target})))))
+
 (rule
  (with-stdout-to
   asset.ml
   (progn
    (echo "let chart_js = {js|")
-   (cat html-assets/chart.js)
+   (cat html-assets/chart.min.js)
+   (echo "|js}\n")
+   (echo "let alpine_js = {js|")
+   (cat html-assets/alpine.min.js)
+   (echo "|js}\n")
+   (echo "let logo_with_name_svg = {js|")
+   (cat html-assets/logo-with-name.svg)
    (echo "|js}\n")
    (echo "let index_html = {html|")
    (cat html-assets/index.html)
+   (echo "|html}\n")
+   (echo "let project_html = {html|")
+   (cat html-assets/project.html)
+   (echo "|html}\n")
+   (echo "let collection_html = {html|")
+   (cat html-assets/collection.html)
    (echo "|html}\n")
    (echo "let main_css = {css|")
    (cat html-assets/main.css)

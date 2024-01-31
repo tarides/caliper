@@ -1,8 +1,10 @@
 type value = Int of int | Float of float | Bytes of bytes
 type entry = { test_name : string; value : value }
 type result = { version : string; timestamp : float; entries : entry list }
-type collection = { name : string; results : result list }
-type t = collection list
+type test = { name : string; results : result list }
+type collection = { name : string; tests : test list }
+type project = { name : string; collections : collection list }
+type t = project list
 
 module Diff = struct
   type value_diff =
@@ -42,21 +44,60 @@ module Diff = struct
       entry_diffs = List.map2 diff_entry older.entries newer.entries;
     }
 
-  let diff_latest_in_collection collection =
+  let diff_latest_in_test test =
     match
-      List.sort
-        (fun r1 r2 -> compare r2.timestamp r1.timestamp)
-        collection.results
+      List.sort (fun r1 r2 -> compare r2.timestamp r1.timestamp) test.results
     with
     | newest :: second_newest :: _ -> Some (diff_results second_newest newest)
     | _ -> None
 
-  let diff_latest (t : t) =
+  let diff_latest (t : collection) =
     List.map
-      (fun (collection : collection) ->
-        {
-          name = collection.name;
-          result_diff = diff_latest_in_collection collection;
-        })
-      t
+      (fun (test : test) ->
+        { name = test.name; result_diff = diff_latest_in_test test })
+      t.tests
+end
+
+module Json_conv = struct
+  let entry_to_json (entry : entry) =
+    `O
+      [
+        ("test_name", `String entry.test_name);
+        (match entry.value with
+        | Int v -> ("value", `Float (float_of_int v))
+        | Float v -> ("Float", `Float v)
+        | Bytes v -> ("Bytes", `String (Bytes.to_string v)));
+      ]
+
+  let result_to_json (result : result) =
+    `O
+      [
+        ("version", `String result.version);
+        ("timestamp", `Float result.timestamp);
+        ("entries", `A (List.map entry_to_json result.entries));
+      ]
+
+  let test_to_json (test : test) =
+    `O
+      [
+        ("name", `String test.name);
+        ("results", `A (List.map result_to_json test.results));
+      ]
+
+  let collection_to_json (collection : collection) =
+    `O
+      [
+        ("name", `String collection.name);
+        ("tests", `A (List.map test_to_json collection.tests));
+      ]
+
+  let project_to_json (project : project) =
+    `O
+      [
+        ("name", `String project.name);
+        ("collections", `A (List.map collection_to_json project.collections));
+      ]
+
+  let to_json projects =
+    `O [ ("projects", `A (List.map project_to_json projects)) ]
 end

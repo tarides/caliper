@@ -4,10 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Caliper Dashboard</title>
-  <link rel="stylesheet" href="main.css">
-  <script src="chart.min.js"></script>
-  <script src="alpine.min.js" defer></script>
+  <title>{{project_name}} -- Caliper Dashboard</title>
+  <link rel="stylesheet" href="../main.css">
+  <script src="../chart.min.js"></script>
+  <script src="../alpine.min.js" defer></script>
 </head>
 
 <body class="h-full">
@@ -50,15 +50,15 @@
 
             <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-2">
               <div class="flex h-16 shrink-0 items-center">
-                <a href="#">
-                  <img class="h-8 w-auto" src="logo-with-name.svg" alt="Caliper">
+                <a href="../index.html">
+                  <img class="h-8 w-auto" src="../logo-with-name.svg" alt="Caliper">
                 </a>
               </div>
               <nav class="flex flex-1 flex-col">
                 <ul role="list" class="-mx-2 space-y-1">
                   {{#projects}}
                   <li>
-                    <a href="_/{{.}}.html"
+                    <a href="{{.}}.html"
                       class="text-gray-700 hover:text-orange-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                       x-state:on="Current" x-state:off="Default"
                       x-state-description="Current: &quot;bg-gray-50 text-orange-600&quot;, Default: &quot;text-gray-700 hover:text-orange-600 hover:bg-gray-50&quot;">
@@ -79,15 +79,15 @@
       <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
           <div class="flex h-16 shrink-0 items-center">
-            <a href="#">
-              <img class="h-8 w-auto" src="logo-with-name.svg" alt="Caliper">
+            <a href="../index.html">
+              <img class="h-8 w-auto" src="../logo-with-name.svg" alt="Caliper">
             </a>
           </div>
           <nav class="flex flex-1 flex-col">
             <ul role="list" class="-mx-2 space-y-1">
               {{#projects}}
               <li>
-                <a href="_/{{.}}.html"
+                <a href="{{.}}.html"
                   class="text-gray-700 hover:text-orange-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                   x-state-description="undefined: &quot;bg-gray-50 text-orange-600&quot;, undefined: &quot;text-gray-700 hover:text-orange-600 hover:bg-gray-50&quot;">
                   <span
@@ -116,9 +116,7 @@
       <main class="py-10 lg:pl-72">
         <div class="px-4 sm:px-6 lg:px-8">
           <div class="mx-auto max-w-2xl text-center">
-            <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Welcome to Caliper 👋</h2>
-            <p class="mt-6 text-lg leading-8 text-gray-600">To get started, select a project from the list of projects
-              on the left sidebar.</p>
+            <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">{{project_name}}</h2>
           </div>
         </div>
       </main>

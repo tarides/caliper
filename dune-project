@@ -13,8 +13,10 @@
 
 (license ISC)
 
+(using directory-targets 0.1)
+
 (package
  (name caliper)
  (synopsis "Benchmarking toolchain and library for OCaml")
  (description "Benchmarking toolchain and library for OCaml.")
- (depends sexplib ppx_sexp_conv cmdliner mustache))
+ (depends sexplib ppx_sexp_conv cmdliner mustache tailwindcss))

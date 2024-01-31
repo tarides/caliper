@@ -76,40 +76,79 @@ let load_benchmark path =
   in
   match version with V0_1 -> V0_1.of_sexp sexp
 
-let save cache_root t =
+let save cache_root (projects : t) =
   if not (Sys.file_exists cache_root) then Unix.mkdir cache_root 0o755;
-  let rec save_resuts root = function
-    | [] -> ()
-    | result :: rest ->
+  let save_results root results =
+    List.iter
+      (fun result ->
         let result_fp =
           Filename.concat root (string_of_float result.timestamp)
         in
-        let () = V0_1.to_sexp result |> Sexp.save_hum result_fp in
-        save_resuts root rest
+        V0_1.to_sexp result |> Sexp.save_hum result_fp)
+      results
   in
-  let rec save_collections = function
-    | [] -> ()
-    | collection :: rest ->
-        let collection_fp = Filename.concat cache_root collection.name in
-        if not (Sys.file_exists collection_fp) then
-          Unix.mkdir collection_fp 0o755;
-        let () = save_resuts collection_fp collection.results in
-        save_collections rest
+  let save_tests collection_root tests =
+    List.iter
+      (fun (test : test) ->
+        let test_root = Filename.concat collection_root test.name in
+        if not (Sys.file_exists test_root) then Unix.mkdir test_root 0o755;
+        save_results test_root test.results)
+      tests
   in
-  save_collections t
+  let save_collections project_root collections =
+    List.iter
+      (fun (collection : collection) ->
+        let collection_root = Filename.concat project_root collection.name in
+        if not (Sys.file_exists collection_root) then
+          Unix.mkdir collection_root 0o755;
+        save_tests collection_root collection.tests)
+      collections
+  in
+  List.iter
+    (fun project ->
+      let project_root = Filename.concat cache_root project.name in
+      if not (Sys.file_exists project_root) then Unix.mkdir project_root 0o755;
+      save_collections project_root project.collections)
+    projects
 
 let load cache_root =
+  let group_by_test_name results =
+    let table = Hashtbl.create 10 in
+    List.iter
+      (fun result ->
+        List.iter
+          (fun entry ->
+            match Hashtbl.find_opt table entry.test_name with
+            | Some r -> Hashtbl.replace table entry.test_name (result :: r)
+            | None -> Hashtbl.add table entry.test_name [ result ])
+          result.entries)
+      results;
+    Hashtbl.fold (fun name results acc -> { name; results } :: acc) table []
+  in
   let load_benchmarks_in_collection collection_root =
-    Sys.readdir collection_root
-    |> Array.to_list
-    |> List.map (fun fn ->
-           let fp = Filename.concat collection_root fn in
-           load_benchmark fp)
+    let results =
+      Sys.readdir collection_root
+      |> Array.to_list
+      |> List.map (fun fn ->
+             let fp = Filename.concat collection_root fn in
+             load_benchmark fp)
+    in
+    group_by_test_name results
   in
   Sys.readdir cache_root |> Array.to_list
-  |> List.map (fun dir_name ->
+  |> List.map (fun project_dir_name ->
+         let project_dir_path = Filename.concat cache_root project_dir_name in
          {
-           name = dir_name;
-           results =
-             load_benchmarks_in_collection (Filename.concat cache_root dir_name);
+           name = project_dir_name;
+           collections =
+             Sys.readdir project_dir_path
+             |> Array.to_list
+             |> List.map (fun dir_name ->
+                    let collection_dir_path =
+                      Filename.concat project_dir_path dir_name
+                    in
+                    {
+                      name = dir_name;
+                      tests = load_benchmarks_in_collection collection_dir_path;
+                    });
          })

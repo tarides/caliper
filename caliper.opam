@@ -13,6 +13,7 @@ depends: [
   "ppx_sexp_conv"
   "cmdliner"
   "mustache"
+  "tailwindcss"
   "odoc" {with-doc}
 ]
 build: [
@@ -30,3 +31,6 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/tmattio/caliper.git"
+pin-depends: [
+  ["tailwindcss.dev" "https://github.com/tmattio/opam-tailwindcss/archive/3e60fc32bbcf82525999d83ad0f395e16107026b.tar.gz"]
+]

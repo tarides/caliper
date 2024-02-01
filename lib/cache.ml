@@ -1,17 +1,6 @@
 open Sexplib
 open Bench
 
-let group_by f lst =
-  let tbl = Hashtbl.create 10 in
-  List.iter
-    (fun item ->
-      let key = f item in
-      match Hashtbl.find_opt tbl key with
-      | Some group -> Hashtbl.replace tbl key (item :: group)
-      | None -> Hashtbl.add tbl key [ item ])
-    lst;
-  Hashtbl.fold (fun key group acc -> (key, List.rev group) :: acc) tbl []
-
 module V0_1 = struct
   open Ppx_sexp_conv_lib.Conv
 
@@ -143,7 +132,6 @@ module V0_1 = struct
       let grouped_by_timestamp = group_by (fun t -> t.timestamp) ts in
       List.map
         (fun (timestamp, ts) ->
-          timestamp |> string_of_float |> print_endline;
           {
             entries = List.concat_map (fun r -> r.entries) ts;
             timestamp;

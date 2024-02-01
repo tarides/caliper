@@ -5,6 +5,12 @@ let run_generate_html cache_dir output_dir =
   let t = Cache.load cache_dir in
   Html.generate output_dir t
 
+let run_parse_cb_json cb_json cache_dir =
+  let collections = Parse.read cb_json in
+  let name = cb_json |> Filename.basename |> Filename.remove_extension in
+  let project = { name; collections } in
+  Cache.save cache_dir [ project ]
+
 (* Cmdliner setup *)
 
 let cache_dir_arg =
@@ -34,12 +40,29 @@ let generate_html_cmd =
   in
   Cmd.v info term
 
+let cb_json_dump_arg =
+  let doc = "The path to the current bench JSON dump file." in
+  Arg.(
+    value & opt file "sample.json"
+    & info [ "j"; "json-dump" ] ~docv:"JSON_DUMP" ~doc)
+
+let parse_cb_json_cmd =
+  let doc = "Parse Current bench JSON dump to a benchmark cache directory" in
+  let term =
+    Term.(const run_parse_cb_json $ cb_json_dump_arg $ cache_dir_arg)
+  in
+  let info =
+    Cmd.info "parse-cb-json" ~doc ~sdocs:"COMMON OPTIONS"
+      ~exits:Cmd.Exit.defaults
+  in
+  Cmd.v info term
+
 let default_cmd =
   let doc = "Caliper benchmarking toolchain" in
   let term = Term.(ret (const (fun _ -> `Help (`Pager, None)) $ const ())) in
   let info =
     Cmd.info "caliper" ~doc ~sdocs:"COMMON OPTIONS" ~exits:Cmd.Exit.defaults
   in
-  Cmd.group ~default:term info [ generate_html_cmd ]
+  Cmd.group ~default:term info [ generate_html_cmd; parse_cb_json_cmd ]
 
 let () = exit (Cmd.eval default_cmd)

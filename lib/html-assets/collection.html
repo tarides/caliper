@@ -1,0 +1,12 @@
+{{ collection_name }}
+<ul>
+{{#groups}}
+<li>{{ name }}
+  <ol>
+    {{#tests}}
+    <li>{{ . }}</li>
+    {{/tests}}
+  </ol>
+</li>
+{{/groups}}
+</ul>

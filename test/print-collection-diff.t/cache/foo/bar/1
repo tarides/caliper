@@ -1,7 +1,0 @@
-(
-  (version 0.1)
-  (timestamp 1)
-  (entries (
-    ((test_name my_test) (value 35) (value_type Int))
-  ))
-)

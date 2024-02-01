@@ -2,6 +2,6 @@
   (version 0.1)
   (timestamp 0)
   (entries (
-    ((test_name my_test) (value 32) (value_type Int))
+    ((group_name default) (test_name my_test) (value 32) (value_type Int))
   ))
 )

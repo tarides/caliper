@@ -39,11 +39,13 @@ module Project_mustache = struct
 end
 
 module Collection_mustache = struct
+  type group = { name : string; tests : string list }
+
   type t = {
     projects : string list;
     project_name : string;
     collection_name : string;
-    benchmarks : string list;
+    groups : group list;
   }
 
   let of_bench (bench_t : Bench.t) (project : Bench.project)
@@ -52,18 +54,34 @@ module Collection_mustache = struct
       projects = List.map (fun p -> p.Bench.name) bench_t;
       project_name = project.Bench.name;
       collection_name = collection.Bench.name;
-      benchmarks =
-        List.map (fun (t : Bench.test) -> t.Bench.name) collection.tests;
+      groups =
+        List.map
+          (fun (g : Bench.group) ->
+            {
+              name = g.name;
+              tests = List.map (fun (t : Bench.test) -> t.name) g.tests;
+            })
+          collection.groups;
     }
 
-  let to_json { projects; project_name; collection_name; benchmarks } :
+  let to_json { projects; project_name; collection_name; groups } :
       Mustache.Json.t =
     `O
       [
         ("projects", `A (List.map (fun name -> `String name) projects));
         ("project_name", `String project_name);
         ("collection_name", `String collection_name);
-        ("benchmarks", `A (List.map (fun name -> `String name) benchmarks));
+        ( "groups",
+          `A
+            (List.map
+               (fun group ->
+                 `O
+                   [
+                     ("name", `String group.name);
+                     ( "tests",
+                       `A (List.map (fun test -> `String test) group.tests) );
+                   ])
+               groups) );
       ]
 end
 
@@ -94,7 +112,8 @@ let generate root t =
 
   (* Generate projects *)
   let project_dir_root = Filename.concat root "_" in
-  if not (Sys.file_exists project_dir_root) then Unix.mkdir project_dir_root 0o755;
+  if not (Sys.file_exists project_dir_root) then
+    Unix.mkdir project_dir_root 0o755;
   List.iter
     (fun (project : Bench.project) ->
       let filepath =

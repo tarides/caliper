@@ -18,8 +18,8 @@ module V0_1 = struct
   type v0_1_value_type = Int | Float | Bytes [@@deriving sexp]
 
   type v0_1_entry = {
-    test_name : string;
     group_name : string;
+    test_name : string;
     value : string;
     value_type : v0_1_value_type;
   }

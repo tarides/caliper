@@ -139,7 +139,17 @@ module V0_1 = struct
         grouped_by_timestamp
 
     let convert_groups_to_v0_1_t_list (groups : group list) : v0_1_t list =
-      List.concat_map convert_group_to_v0_1_t groups
+      let ts = List.concat_map convert_group_to_v0_1_t groups in
+      let grouped_by_timestamp = group_by (fun t -> t.timestamp) ts in
+      List.map
+        (fun (timestamp, ts) ->
+          timestamp |> string_of_float |> print_endline;
+          {
+            entries = List.concat_map (fun r -> r.entries) ts;
+            timestamp;
+            version = "0.1";
+          })
+        grouped_by_timestamp
   end
 end
 

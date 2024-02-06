@@ -113,10 +113,23 @@
         <div class="flex-1 text-sm font-semibold leading-6 text-gray-900">Caliber</div>
       </div>
 
-      <main class="py-10 lg:pl-72">
-        <div class="px-4 sm:px-6 lg:px-8">
-          <div class="mx-auto max-w-2xl text-center">
-            <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">{{project_name}}</h2>
+        <main class="py-10 lg:pl-72">
+          <div class="px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-2xl text-center">
+              <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">{{project_name}}</h2>
+              <div class="max-w-lg mx-auto">
+                <p class="py-10 max-w-lg mx-auto">
+                  Choose one of the benchmark collections to view the results
+                </p>
+                <div class="bg-white rounded-lg border border-gray-200 w-48 text-gray-900 text-sm font-medium">
+                  <div class="mt-2 space-y-2">
+                    {{#collections}}
+                    <a href="{{project_name}}--{{.}}.html" class="block rounded-lg py-2 pl-6 pr-3 text-sm font-semibold leading-7 text-gray-900 hover:bg-gray-50">{{ . }}</a>
+                    {{/collections}}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>

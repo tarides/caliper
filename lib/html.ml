@@ -96,12 +96,27 @@ let render_collection_html t project collection =
   Mustache.render template_collection_html
     Collection_mustache.(to_json (of_bench t project collection))
 
+let write_collection_data ~project_name project_dir
+    (collection : Bench.collection) =
+  let filename = project_name ^ "--" ^ collection.name ^ ".json" in
+  let filepath = Filename.concat project_dir filename in
+  let json = Bench.Json.of_collection collection in
+  let pp = Yojson.Safe.pretty_to_channel ~std:false in
+  Out_channel.with_open_text filepath (fun oc -> pp oc json)
+
 let generate root t =
   if not (Sys.file_exists root) then Unix.mkdir root 0o755;
   Out_channel.with_open_text (Filename.concat root "chart.min.js") (fun oc ->
       Out_channel.output_string oc Asset.chart_js);
+  Out_channel.with_open_text (Filename.concat root "moment.min.js") (fun oc ->
+      Out_channel.output_string oc Asset.moment_js);
+  Out_channel.with_open_text
+    (Filename.concat root "chartjs-adapter-moment.min.js") (fun oc ->
+      Out_channel.output_string oc Asset.adapter_moment_js);
   Out_channel.with_open_text (Filename.concat root "alpine.min.js") (fun oc ->
       Out_channel.output_string oc Asset.alpine_js);
+  Out_channel.with_open_text (Filename.concat root "plot.js") (fun oc ->
+      Out_channel.output_string oc Asset.plot_js);
   Out_channel.with_open_text (Filename.concat root "logo-with-name.svg")
     (fun oc -> Out_channel.output_string oc Asset.logo_with_name_svg);
   Out_channel.with_open_text (Filename.concat root "main.css") (fun oc ->
@@ -128,6 +143,8 @@ let generate root t =
             Filename.concat project_dir_root
               (project.name ^ "--" ^ collection.name ^ ".html")
           in
+          write_collection_data ~project_name:project.name project_dir_root
+            collection;
           Out_channel.with_open_text filepath (fun oc ->
               Out_channel.output_string oc
                 (render_collection_html t project collection)))

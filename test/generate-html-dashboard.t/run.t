@@ -5,9 +5,12 @@ Generate an HTML page with the benchmark history.
   _
   alpine.min.js
   chart.min.js
+  chartjs-adapter-moment.min.js
   index.html
   logo-with-name.svg
   main.css
+  moment.min.js
+  plot.js
   $ cat html-output/index.html
   <!DOCTYPE html>
   <html lang="en" class="h-full bg-white">

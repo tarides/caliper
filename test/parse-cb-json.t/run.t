@@ -1,21 +1,6 @@
 Parse Current Bench JSON data and generate a cache directory.
 
   $ caliper parse-cb-json
-  1706661699.66
-  1706396887.2
-  1706385451.14
-  1706623106.99
-  1706604852.64
-  1706380431.55
-  1706348118.96
-  1706668348.24
-  1706469136.66
-  1706342172.47
-  1706529029.87
-  1706416295.31
-  1706675457.2
-  1706626080.56
-  1706507744.62
   $ ls cache/sample/default | wc -l
   15
   $ cat cache/sample/default/1706675457.2

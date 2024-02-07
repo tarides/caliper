@@ -1,0 +1,29 @@
+---
+name: OCaml CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup OCaml 5.1.x
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: 5.1.x
+          dune-cache: true
+
+      - name: Install Dependencies
+        run: |
+          opam install . --deps-only --with-test
+
+
+      - name: Run Dune tests
+        run: |
+          opam exec -- dune runtest

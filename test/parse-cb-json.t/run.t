@@ -4,7 +4,8 @@ Parse Current Bench JSON data and generate a cache directory.
   $ ls cache/sample/default | wc -l
   15
   $ cat cache/sample/default/1706675457.2
-  ((version 0.1) (timestamp 1706675457.2)
+  ((version 0.1) (commit 0fe70a7741f69fb93d79655e35bd976bc6676e10)
+   (timestamp 1706675457.2)
    (entries
     (((group_name "Major Collections") (test_name "[Clean] Major Collections")
       (value 35.) (value_type Float))

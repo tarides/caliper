@@ -14,17 +14,21 @@ module V0_1 = struct
   }
   [@@deriving sexp]
 
-  type v0_1_result = { timestamp : float; entry : v0_1_entry } [@@deriving sexp]
+  type v0_1_result = { commit : string; timestamp : float; entry : v0_1_entry }
+  [@@deriving sexp]
 
   type v0_1_t = {
     version : string;
+    commit : string;
     timestamp : float;
     entries : v0_1_entry list;
   }
   [@@deriving sexp]
 
   let results_of_t t =
-    List.map (fun entry -> { timestamp = t.timestamp; entry }) t.entries
+    List.map
+      (fun entry -> { timestamp = t.timestamp; commit = t.commit; entry })
+      t.entries
 
   let v0_1_entry_of_value ~group_name ~test_name (value : value) : v0_1_entry =
     let value, value_type =
@@ -45,16 +49,16 @@ module V0_1 = struct
   let to_sexp = sexp_of_v0_1_t
 
   module To_bench = struct
-    let convert_entries_to_results entries timestamp =
+    let convert_entries_to_results entries timestamp commit =
       List.map
-        (fun entry -> { timestamp; value = value_of_v0_1_entry entry })
+        (fun entry -> { timestamp; commit; value = value_of_v0_1_entry entry })
         entries
 
-    let convert_group (group_name, test_entries_map, timestamp) =
+    let convert_group (group_name, test_entries_map, timestamp, commit) =
       let tests =
         Hashtbl.fold
           (fun test_name entries acc ->
-            let results = convert_entries_to_results entries timestamp in
+            let results = convert_entries_to_results entries timestamp commit in
             { name = test_name; results } :: acc)
           test_entries_map []
       in
@@ -81,7 +85,9 @@ module V0_1 = struct
 
       Hashtbl.fold
         (fun group_name test_entries_map acc ->
-          convert_group (group_name, test_entries_map, v0_1_t.timestamp) :: acc)
+          convert_group
+            (group_name, test_entries_map, v0_1_t.timestamp, v0_1_t.commit)
+          :: acc)
         groups_map []
 
     let convert_v0_1_t_list_to_groups (v0_1_list : v0_1_t list) : group list =
@@ -101,7 +107,7 @@ module V0_1 = struct
     let convert_result_to_v0_1_result ~group_name ~test_name (result : result) :
         v0_1_result =
       let entry = v0_1_entry_of_value ~group_name ~test_name result.value in
-      { timestamp = result.timestamp; entry }
+      { timestamp = result.timestamp; commit = result.commit; entry }
 
     let convert_test_to_v0_1_results ~group_name (test : test) :
         v0_1_result list =
@@ -116,25 +122,29 @@ module V0_1 = struct
           group.tests
       in
       let grouped_by_timestamp =
-        group_by (fun (t : v0_1_result) -> t.timestamp) results
+        group_by (fun (t : v0_1_result) -> (t.timestamp, t.commit)) results
       in
       List.map
-        (fun (timestamp, grouped_results) ->
+        (fun ((timestamp, commit), grouped_results) ->
           {
             entries = List.map (fun r -> r.entry) grouped_results;
             timestamp;
+            commit;
             version = "0.1";
           })
         grouped_by_timestamp
 
     let convert_groups_to_v0_1_t_list (groups : group list) : v0_1_t list =
       let ts = List.concat_map convert_group_to_v0_1_t groups in
-      let grouped_by_timestamp = group_by (fun t -> t.timestamp) ts in
+      let grouped_by_timestamp =
+        group_by (fun t -> (t.timestamp, t.commit)) ts
+      in
       List.map
-        (fun (timestamp, ts) ->
+        (fun ((timestamp, commit), ts) ->
           {
             entries = List.concat_map (fun r -> r.entries) ts;
             timestamp;
+            commit;
             version = "0.1";
           })
         grouped_by_timestamp
@@ -199,7 +209,11 @@ let load cache_root =
     in
     let results = List.concat_map V0_1.results_of_t ts in
     let load_result (r : V0_1.v0_1_result) =
-      { value = V0_1.value_of_v0_1_entry r.entry; timestamp = r.timestamp }
+      {
+        value = V0_1.value_of_v0_1_entry r.entry;
+        timestamp = r.timestamp;
+        commit = r.commit;
+      }
     in
     let results_by_group_name =
       group_by (fun (r : V0_1.v0_1_result) -> r.entry.group_name) results

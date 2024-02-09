@@ -8,6 +8,7 @@ module Parse = struct
   type metric = {
     value : Bench.value;
     timestamp : float;
+    commit : string;
     test_name : string;
     group_name : string;
     collection_name : string;
@@ -43,7 +44,12 @@ module Parse = struct
     let merge_metrics_as_test (name, metrics) =
       let results =
         List.map
-          (fun m -> { Bench.value = m.value; timestamp = m.timestamp })
+          (fun m ->
+            {
+              Bench.value = m.value;
+              timestamp = m.timestamp;
+              commit = m.commit;
+            })
           metrics
       in
       { Bench.name; results }
@@ -65,12 +71,13 @@ module Parse = struct
     let collection_name = test |> member "benchmark_name" |> to_string in
     let group_name = test |> member "test_name" |> to_string in
     let ts = test |> member "run_at" |> to_string in
+    let commit = test |> member "commit" |> to_string in
     let timestamp = ts |> ISO8601.Permissive.datetime in
     let cb_metrics = test |> member "metrics" |> to_list in
     List.map
       (fun m ->
         let test_name, value = load_cb_metric m in
-        { value; timestamp; test_name; group_name; collection_name })
+        { value; timestamp; commit; test_name; group_name; collection_name })
       cb_metrics
 
   let load_cb_benchmarks groups =

@@ -1,5 +1,5 @@
 type value = Int of int | Float of float | Bytes of bytes
-type result = { timestamp : float; value : value }
+type result = { commit : string; timestamp : float; value : value }
 type test = { name : string; results : result list }
 type group = { name : string; tests : test list }
 type collection = { name : string; groups : group list }

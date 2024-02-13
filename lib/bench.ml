@@ -1,4 +1,4 @@
-type value = Int of int | Float of float | Bytes of bytes
+type value = Empty | Int of int | Float of float | Bytes of bytes
 type result = { commit : string; timestamp : float; value : value }
 type test = { name : string; results : result list }
 type group = { name : string; tests : test list }
@@ -17,17 +17,71 @@ let group_by f lst =
     lst;
   Hashtbl.fold (fun key group acc -> (key, List.rev group) :: acc) tbl []
 
+let extract_all_commits project =
+  let commit_set = Hashtbl.create 100 in
+  List.iter
+    (fun collection ->
+      List.iter
+        (fun group ->
+          List.iter
+            (fun test ->
+              List.iter
+                (fun result ->
+                  Hashtbl.replace commit_set
+                    (result.timestamp, result.commit)
+                    ())
+                test.results)
+            group.tests)
+        collection.groups)
+    project.collections;
+  Hashtbl.fold (fun ts_commit _ acc -> ts_commit :: acc) commit_set []
+  |> List.sort (fun (a_ts, _) (b_ts, _) -> compare a_ts b_ts)
+
+let align_commits project =
+  let all_commits = extract_all_commits project in
+  let align_test_results ~all_commits test =
+    let aligned_results =
+      List.map
+        (fun (timestamp, commit) ->
+          match
+            List.find_opt (fun result -> result.commit = commit) test.results
+          with
+          | Some result -> result
+          | None -> { value = Empty; timestamp; commit })
+        all_commits
+    in
+    { test with results = aligned_results }
+  in
+  let collections =
+    List.map
+      (fun collection ->
+        let groups =
+          List.map
+            (fun group ->
+              let tests =
+                List.map (align_test_results ~all_commits) group.tests
+              in
+              { group with tests })
+            collection.groups
+        in
+        { collection with groups })
+      project.collections
+  in
+  { project with collections }
+
 module Json = struct
   let of_value = function
-    | Int value -> float_of_int value
-    | Float value -> value
-    | Bytes _ -> 0. (* FIXME: Bytes to Float?! *)
+    | Empty -> `Null
+    | Int value -> `Float (float_of_int value)
+    | Float value -> `Float value
+    | Bytes _ -> `Float 0. (* FIXME: Bytes to Float?! *)
 
   let of_result result =
     `Assoc
       [
         ("timestamp", `Float result.timestamp);
-        ("value", `Float (of_value result.value));
+        ("commit", `String result.commit);
+        ("value", of_value result.value);
       ]
 
   let of_test (test : test) =

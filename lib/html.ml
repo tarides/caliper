@@ -136,6 +136,7 @@ let generate root t =
       in
       Out_channel.with_open_text filepath (fun oc ->
           Out_channel.output_string oc (render_project_html t project));
+      let project = Bench.align_commits project in
       (* Generate collections *)
       List.iter
         (fun (collection : Bench.collection) ->

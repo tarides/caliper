@@ -4,7 +4,7 @@ open Bench
 module V0_1 = struct
   open Ppx_sexp_conv_lib.Conv
 
-  type v0_1_value_type = Int | Float | Bytes [@@deriving sexp]
+  type v0_1_value_type = Empty | Int | Float | Bytes [@@deriving sexp]
 
   type v0_1_entry = {
     group_name : string;
@@ -33,6 +33,7 @@ module V0_1 = struct
   let v0_1_entry_of_value ~group_name ~test_name (value : value) : v0_1_entry =
     let value, value_type =
       match value with
+      | Empty -> ("", Empty)
       | Int v -> (Int.to_string v, Int)
       | Float v -> (Float.to_string v, Float)
       | Bytes v -> (Bytes.to_string v, Bytes)
@@ -41,6 +42,7 @@ module V0_1 = struct
 
   let value_of_v0_1_entry v0_1_entry : value =
     match v0_1_entry.value_type with
+    | Empty -> Empty
     | Int -> Int (int_of_string v0_1_entry.value)
     | Float -> Float (Float.of_string v0_1_entry.value)
     | Bytes -> Bytes (Bytes.of_string v0_1_entry.value)

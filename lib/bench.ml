@@ -1,4 +1,4 @@
-type value = Empty | Int of int | Float of float | Bytes of bytes
+type value = Empty | Int of int | Float of float
 type result = { commit : string; timestamp : float; value : value }
 type test = { name : string; results : result list }
 type group = { name : string; tests : test list }
@@ -74,7 +74,6 @@ module Json = struct
     | Empty -> `Null
     | Int value -> `Float (float_of_int value)
     | Float value -> `Float value
-    | Bytes _ -> `Float 0. (* FIXME: Bytes to Float?! *)
 
   let of_result result =
     `Assoc

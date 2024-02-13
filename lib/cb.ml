@@ -14,23 +14,15 @@ module Parse = struct
     collection_name : string;
   }
 
-  let mean = function
-    | [] -> 0.
-    | (xs : float list) ->
-        let n = List.length xs |> float_of_int in
-        let sum = List.fold_left (fun acc x -> acc +. x) 0. xs in
-        sum /. n
-
   let extract_number = function
     | `Float v -> v
     | `Int v -> v |> float_of_int
     | _ -> raise Not_Number
 
   let to_value = function
-    (* FIXME: Maybe better to support a list type in Bench.value?? *)
-    | `List v ->
-        let value = v |> List.map extract_number |> mean in
-        Bench.Float value
+    | `List vs ->
+        let values = vs |> List.map extract_number in
+        Bench.List values
     | `Float v -> Bench.Float v
     | `Int v -> Bench.Int v
     | _ -> raise Invalid_JSON

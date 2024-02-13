@@ -4,7 +4,7 @@ open Bench
 module V0_1 = struct
   open Ppx_sexp_conv_lib.Conv
 
-  type v0_1_value_type = Empty | Int | Float [@@deriving sexp]
+  type v0_1_value_type = Empty | Int | Float | List [@@deriving sexp]
 
   type v0_1_entry = {
     group_name : string;
@@ -36,6 +36,7 @@ module V0_1 = struct
       | Empty -> ("", Empty)
       | Int v -> (Int.to_string v, Int)
       | Float v -> (Float.to_string v, Float)
+      | List vs -> (List.map Float.to_string vs |> String.concat " ", List)
     in
     { test_name; group_name; value; value_type }
 
@@ -44,6 +45,9 @@ module V0_1 = struct
     | Empty -> Empty
     | Int -> Int (int_of_string v0_1_entry.value)
     | Float -> Float (Float.of_string v0_1_entry.value)
+    | List ->
+        List
+          (String.split_on_char ' ' v0_1_entry.value |> List.map Float.of_string)
 
   let of_sexp = v0_1_t_of_sexp
   let to_sexp = sexp_of_v0_1_t

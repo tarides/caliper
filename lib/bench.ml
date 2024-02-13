@@ -1,4 +1,4 @@
-type value = Empty | Int of int | Float of float
+type value = Empty | Int of int | Float of float | List of float list
 type result = { commit : string; timestamp : float; value : value }
 type test = { name : string; results : result list }
 type group = { name : string; tests : test list }
@@ -69,11 +69,19 @@ let align_commits project =
   in
   { project with collections }
 
+let mean = function
+  | [] -> 0.
+  | (xs : float list) ->
+      let n = List.length xs |> float_of_int in
+      let sum = List.fold_left (fun acc x -> acc +. x) 0. xs in
+      sum /. n
+
 module Json = struct
   let of_value = function
     | Empty -> `Null
     | Int value -> `Float (float_of_int value)
     | Float value -> `Float value
+    | List values -> `Float (mean values)
 
   let of_result result =
     `Assoc

@@ -18,49 +18,44 @@ let group_by f lst =
   Hashtbl.fold (fun key group acc -> (key, List.rev group) :: acc) tbl []
 
 module Process = struct
-  let extract_all_commits project =
+  let extract_collection_commits collection =
     let commit_set = Hashtbl.create 100 in
     List.iter
-      (fun collection ->
+      (fun group ->
         List.iter
-          (fun group ->
+          (fun test ->
             List.iter
-              (fun test ->
-                List.iter
-                  (fun result ->
-                    Hashtbl.replace commit_set
-                      (result.timestamp, result.commit)
-                      ())
-                  test.results)
-              group.tests)
-          collection.groups)
-      project.collections;
+              (fun result ->
+                Hashtbl.replace commit_set (result.timestamp, result.commit) ())
+              test.results)
+          group.tests)
+      collection.groups;
     Hashtbl.fold (fun ts_commit _ acc -> ts_commit :: acc) commit_set []
     |> List.sort (fun (a_ts, _) (b_ts, _) -> compare a_ts b_ts)
 
-  let align_commits project =
-    let all_commits = extract_all_commits project in
-    let align_test_results ~all_commits test =
-      let aligned_results =
-        List.map
-          (fun (timestamp, commit) ->
-            match
-              List.find_opt (fun result -> result.commit = commit) test.results
-            with
-            | Some result -> result
-            | None -> { value = Empty; timestamp; commit })
-          all_commits
-      in
-      { test with results = aligned_results }
+  let align_test_results ~commits test =
+    let aligned_results =
+      List.map
+        (fun (timestamp, commit) ->
+          match
+            List.find_opt (fun result -> result.commit = commit) test.results
+          with
+          | Some result -> result
+          | None -> { value = Empty; timestamp; commit })
+        commits
     in
+    { test with results = aligned_results }
+
+  let align_commits project =
     let collections =
       List.map
         (fun collection ->
+          let commits = extract_collection_commits collection in
           let groups =
             List.map
               (fun group ->
                 let tests =
-                  List.map (align_test_results ~all_commits) group.tests
+                  List.map (align_test_results ~commits) group.tests
                 in
                 { group with tests })
               collection.groups

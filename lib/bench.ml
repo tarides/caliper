@@ -17,71 +17,75 @@ let group_by f lst =
     lst;
   Hashtbl.fold (fun key group acc -> (key, List.rev group) :: acc) tbl []
 
-let extract_all_commits project =
-  let commit_set = Hashtbl.create 100 in
-  List.iter
-    (fun collection ->
-      List.iter
-        (fun group ->
-          List.iter
-            (fun test ->
-              List.iter
-                (fun result ->
-                  Hashtbl.replace commit_set
-                    (result.timestamp, result.commit)
-                    ())
-                test.results)
-            group.tests)
-        collection.groups)
-    project.collections;
-  Hashtbl.fold (fun ts_commit _ acc -> ts_commit :: acc) commit_set []
-  |> List.sort (fun (a_ts, _) (b_ts, _) -> compare a_ts b_ts)
-
-let align_commits project =
-  let all_commits = extract_all_commits project in
-  let align_test_results ~all_commits test =
-    let aligned_results =
-      List.map
-        (fun (timestamp, commit) ->
-          match
-            List.find_opt (fun result -> result.commit = commit) test.results
-          with
-          | Some result -> result
-          | None -> { value = Empty; timestamp; commit })
-        all_commits
-    in
-    { test with results = aligned_results }
-  in
-  let collections =
-    List.map
+module Process = struct
+  let extract_all_commits project =
+    let commit_set = Hashtbl.create 100 in
+    List.iter
       (fun collection ->
-        let groups =
-          List.map
-            (fun group ->
-              let tests =
-                List.map (align_test_results ~all_commits) group.tests
-              in
-              { group with tests })
-            collection.groups
-        in
-        { collection with groups })
-      project.collections
-  in
-  { project with collections }
+        List.iter
+          (fun group ->
+            List.iter
+              (fun test ->
+                List.iter
+                  (fun result ->
+                    Hashtbl.replace commit_set
+                      (result.timestamp, result.commit)
+                      ())
+                  test.results)
+              group.tests)
+          collection.groups)
+      project.collections;
+    Hashtbl.fold (fun ts_commit _ acc -> ts_commit :: acc) commit_set []
+    |> List.sort (fun (a_ts, _) (b_ts, _) -> compare a_ts b_ts)
 
-let mean = function
-  | [] -> 0.
-  | (xs : float list) ->
-      let n = List.length xs |> float_of_int in
-      let sum = List.fold_left (fun acc x -> acc +. x) 0. xs in
-      sum /. n
+  let align_commits project =
+    let all_commits = extract_all_commits project in
+    let align_test_results ~all_commits test =
+      let aligned_results =
+        List.map
+          (fun (timestamp, commit) ->
+            match
+              List.find_opt (fun result -> result.commit = commit) test.results
+            with
+            | Some result -> result
+            | None -> { value = Empty; timestamp; commit })
+          all_commits
+      in
+      { test with results = aligned_results }
+    in
+    let collections =
+      List.map
+        (fun collection ->
+          let groups =
+            List.map
+              (fun group ->
+                let tests =
+                  List.map (align_test_results ~all_commits) group.tests
+                in
+                { group with tests })
+              collection.groups
+          in
+          { collection with groups })
+        project.collections
+    in
+    { project with collections }
+end
+
+module Stats = struct
+  let mean = function
+    | [] -> 0.
+    | (xs : float list) ->
+        let n = List.length xs |> float_of_int in
+        let sum = List.fold_left (fun acc x -> acc +. x) 0. xs in
+        sum /. n
+end
 
 module Json = struct
   let of_value = function
     | Empty -> `Null
     | Int value -> `Float (float_of_int value)
     | Float value -> `Float value
-    | List values -> `Float (mean values)
+    | List values -> `Float (Stats.mean values)
 
   let of_result result =
     `Assoc

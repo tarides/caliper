@@ -33,6 +33,32 @@ module Process = struct
     Hashtbl.fold (fun ts_commit _ acc -> ts_commit :: acc) commit_set []
     |> List.sort (fun (a_ts, _) (b_ts, _) -> compare a_ts b_ts)
 
+  let find_latest_commits collection =
+    let commits = extract_collection_commits collection in
+    commits |> List.rev |> List.hd
+
+  let filter_active_tests collection =
+    let _, commit = find_latest_commits collection in
+    let groups =
+      List.filter_map
+        (fun group ->
+          let tests =
+            List.filter_map
+              (fun test ->
+                match
+                  List.find_opt
+                    (fun result -> result.commit = commit)
+                    test.results
+                with
+                | Some _ -> Some test
+                | _ -> None)
+              group.tests
+          in
+          if List.length tests > 0 then Some { group with tests } else None)
+        collection.groups
+    in
+    { collection with groups }
+
   let align_test_results ~commits test =
     let aligned_results =
       List.map
@@ -46,11 +72,14 @@ module Process = struct
     in
     { test with results = aligned_results }
 
-  let align_commits project =
+  let align_commits ?(active_only = true) project =
     let collections =
       List.map
         (fun collection ->
-          let commits = extract_collection_commits collection in
+          let filtered_collection =
+            if active_only then filter_active_tests collection else collection
+          in
+          let commits = extract_collection_commits filtered_collection in
           let groups =
             List.map
               (fun group ->
@@ -58,9 +87,9 @@ module Process = struct
                   List.map (align_test_results ~commits) group.tests
                 in
                 { group with tests })
-              collection.groups
+              filtered_collection.groups
           in
-          { collection with groups })
+          { filtered_collection with groups })
         project.collections
     in
     { project with collections }

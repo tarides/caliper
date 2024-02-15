@@ -131,12 +131,12 @@ let generate root t =
     Unix.mkdir project_dir_root 0o755;
   List.iter
     (fun (project : Bench.project) ->
+      let project = Bench.Process.align_commits ~active_only:true project in
       let filepath =
         Filename.concat project_dir_root (project.name ^ ".html")
       in
       Out_channel.with_open_text filepath (fun oc ->
           Out_channel.output_string oc (render_project_html t project));
-      let project = Bench.Process.align_commits project in
       (* Generate collections *)
       List.iter
         (fun (collection : Bench.collection) ->

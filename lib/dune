@@ -15,15 +15,12 @@
  (with-stdout-to
   asset.ml
   (progn
-   (echo "let chart_js = {js|")
-   (cat html-assets/chart.min.js)
+   (echo "let uPlot_js = {js|")
+   (cat html-assets/uPlot.iife.min.js)
    (echo "|js}\n")
-   (echo "let moment_js = {js|")
-   (cat html-assets/moment.min.js)
-   (echo "|js}\n")
-   (echo "let adapter_moment_js = {js|")
-   (cat html-assets/chartjs-adapter-moment.min.js)
-   (echo "|js}\n")
+   (echo "let uPlot_css = {css|")
+   (cat html-assets/uPlot.min.css)
+   (echo "|css}\n")
    (echo "let alpine_js = {js|")
    (cat html-assets/alpine.min.js)
    (echo "|js}\n")

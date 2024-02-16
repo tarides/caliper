@@ -6,10 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{project_name}} -- Caliper Dashboard</title>
   <link rel="stylesheet" href="../main.css">
-  <script src="../chart.min.js"></script>
+  <link rel="stylesheet" href="../uPlot.min.css">
+  <script src="../uPlot.iife.min.js"></script>
   <script src="../alpine.min.js" defer></script>
-  <script src="../moment.min.js"></script>
-  <script src="../chartjs-adapter-moment.min.js"></script>
   <script src="../plot.js" defer></script>
 </head>
 
@@ -130,8 +129,8 @@
                     {{#tests}}
                     <div>
                       <!-- <h4 class="mt-2 text font-bold tracking-tight text-gray-900 sm:text-2xl">{{.}}</h4> -->
-                      <div class="calipert-chart-container" style="height: 300px; width:80vw">
-                        <canvas class="caliper-plot" data-source="{{project_name}}--{{collection_name}}" data-test-name="{{.}}" data-group-name="{{name}}" />
+                      <div class="calipert-chart-container">
+                        <div class="caliper-plot" data-source="{{project_name}}--{{collection_name}}" data-test-name="{{.}}" data-group-name="{{name}}" />
                       </div>
                     </div>
                     {{/tests}}

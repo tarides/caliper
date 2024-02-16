@@ -4,13 +4,12 @@ Generate an HTML page with the benchmark history.
   $ ls html-output/
   _
   alpine.min.js
-  chart.min.js
-  chartjs-adapter-moment.min.js
   index.html
   logo-with-name.svg
   main.css
-  moment.min.js
   plot.js
+  uPlot.iife.min.js
+  uPlot.min.css
   $ cat html-output/index.html
   <!DOCTYPE html>
   <html lang="en" class="h-full bg-white">
@@ -20,7 +19,6 @@ Generate an HTML page with the benchmark history.
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Caliper Dashboard</title>
     <link rel="stylesheet" href="main.css">
-    <script src="chart.min.js"></script>
     <script src="alpine.min.js" defer></script>
   </head>
   

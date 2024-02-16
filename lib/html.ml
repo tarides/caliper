@@ -106,13 +106,10 @@ let write_collection_data ~project_name project_dir
 
 let generate root t =
   if not (Sys.file_exists root) then Unix.mkdir root 0o755;
-  Out_channel.with_open_text (Filename.concat root "chart.min.js") (fun oc ->
-      Out_channel.output_string oc Asset.chart_js);
-  Out_channel.with_open_text (Filename.concat root "moment.min.js") (fun oc ->
-      Out_channel.output_string oc Asset.moment_js);
-  Out_channel.with_open_text
-    (Filename.concat root "chartjs-adapter-moment.min.js") (fun oc ->
-      Out_channel.output_string oc Asset.adapter_moment_js);
+  Out_channel.with_open_text (Filename.concat root "uPlot.iife.min.js")
+    (fun oc -> Out_channel.output_string oc Asset.uPlot_js);
+  Out_channel.with_open_text (Filename.concat root "uPlot.min.css") (fun oc ->
+      Out_channel.output_string oc Asset.uPlot_css);
   Out_channel.with_open_text (Filename.concat root "alpine.min.js") (fun oc ->
       Out_channel.output_string oc Asset.alpine_js);
   Out_channel.with_open_text (Filename.concat root "plot.js") (fun oc ->

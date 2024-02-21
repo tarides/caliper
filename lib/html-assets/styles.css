@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.u-tooltip {
+  font-size: 10pt;
+  position: absolute;
+  background: #fff;
+  display: none;
+  border: 2px solid black;
+  padding: 4px;
+  pointer-events: none;
+  z-index: 100;
+  white-space: pre;
+  font-family: monospace;
+}

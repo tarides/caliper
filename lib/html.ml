@@ -104,8 +104,7 @@ let write_collection_data ~project_name project_dir
   let pp = Yojson.Safe.pretty_to_channel ~std:false in
   Out_channel.with_open_text filepath (fun oc -> pp oc json)
 
-let generate root t =
-  if not (Sys.file_exists root) then Unix.mkdir root 0o755;
+let copy_html_assets root =
   Out_channel.with_open_text (Filename.concat root "uPlot.iife.min.js")
     (fun oc -> Out_channel.output_string oc Asset.uPlot_js);
   Out_channel.with_open_text (Filename.concat root "uPlot.min.css") (fun oc ->
@@ -118,6 +117,12 @@ let generate root t =
     (fun oc -> Out_channel.output_string oc Asset.logo_with_name_svg);
   Out_channel.with_open_text (Filename.concat root "main.css") (fun oc ->
       Out_channel.output_string oc Asset.main_css);
+  ()
+
+let generate root t =
+  if not (Sys.file_exists root) then Unix.mkdir root 0o755;
+  copy_html_assets root;
+
   let index_html = render_index_html t in
   Out_channel.with_open_text (Filename.concat root "index.html") (fun oc ->
       Out_channel.output_string oc index_html);

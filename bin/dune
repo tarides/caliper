@@ -1,4 +1,4 @@
 (executable
  (public_name caliper)
  (name main)
- (libraries caliper cmdliner))
+ (libraries caliper cmdliner str))

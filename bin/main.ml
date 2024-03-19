@@ -8,8 +8,11 @@ let run_generate_html cache_dir output_dir =
 let run_parse_cb_json cb_json cache_dir =
   let collections = Parse.read cb_json in
   let name = cb_json |> Filename.basename |> Filename.remove_extension in
+  let url = Parse.get_project_url cb_json in
   let project = { name; collections } in
-  Cache.save cache_dir [ project ]
+  let project_root = Filename.concat cache_dir name in
+  Cache.save cache_dir [ project ];
+  Config.save project_root { Config.url; name }
 
 (* Cmdliner setup *)
 

@@ -219,11 +219,18 @@ let load cache_root =
   Sys.readdir cache_root |> Array.to_list
   |> List.map (fun project_dir_name ->
          let project_dir_path = Filename.concat cache_root project_dir_name in
+         let config =
+           match Config.load project_dir_path with
+           | Some config -> config
+           | None -> { Config.empty with name = project_dir_name }
+         in
          {
-           name = project_dir_name;
+           name = config.name;
            collections =
              Sys.readdir project_dir_path
              |> Array.to_list
+             |> List.filter (fun name ->
+                    Filename.concat project_dir_path name |> Sys.is_directory)
              |> List.map (fun dir_name ->
                     let collection_dir_path =
                       Filename.concat project_dir_path dir_name

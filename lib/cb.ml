@@ -80,4 +80,14 @@ module Parse = struct
     let open Yojson.Safe in
     let json = from_file path in
     json |> to_list |> load_cb_benchmarks
+
+  let get_project_url path =
+    let module S = Yojson.Safe in
+    let json = S.from_file path in
+    json |> to_list |> function
+    | [] -> ""
+    | x :: _ ->
+        let repo_id = member "repo_id" x |> to_string in
+        (* NOTE: We assume GH repos, since Current Bench supports GH only *)
+        Printf.sprintf "https://github.com/%s" repo_id
 end

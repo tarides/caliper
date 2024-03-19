@@ -44,6 +44,7 @@ module Collection_mustache = struct
   type t = {
     projects : string list;
     project_name : string;
+    project_url : string;
     collection_name : string;
     groups : group list;
   }
@@ -53,6 +54,7 @@ module Collection_mustache = struct
     {
       projects = List.map (fun p -> p.Bench.name) bench_t;
       project_name = project.Bench.name;
+      project_url = project.Bench.url;
       collection_name = collection.Bench.name;
       groups =
         List.map
@@ -64,12 +66,13 @@ module Collection_mustache = struct
           collection.groups;
     }
 
-  let to_json { projects; project_name; collection_name; groups } :
+  let to_json { projects; project_name; project_url; collection_name; groups } :
       Mustache.Json.t =
     `O
       [
         ("projects", `A (List.map (fun name -> `String name) projects));
         ("project_name", `String project_name);
+        ("project_url", `String project_url);
         ("collection_name", `String collection_name);
         ( "groups",
           `A

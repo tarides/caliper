@@ -120,7 +120,7 @@
             <div class="mx-auto max-w-auto text-center">
               <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">{{project_name}} &ndash; {{collection_name}}</h2>
               <div class="max-w-auto mx-auto">
-                <div class="caliper-collection" data-source="{{project_name}}--{{collection_name}}"/>
+                <div class="caliper-collection" data-project-url="{{project_url}}" data-source="{{project_name}}--{{collection_name}}"/>
 
                 {{#groups}}
                 <div>
@@ -130,7 +130,7 @@
                     <div>
                       <!-- <h4 class="mt-2 text font-bold tracking-tight text-gray-900 sm:text-2xl">{{.}}</h4> -->
                       <div class="calipert-chart-container">
-                        <div class="caliper-plot" data-source="{{project_name}}--{{collection_name}}" data-test-name="{{.}}" data-group-name="{{name}}" />
+                        <div class="caliper-plot" data-project-url="{{project_url}}" data-source="{{project_name}}--{{collection_name}}" data-test-name="{{.}}" data-group-name="{{name}}" />
                       </div>
                     </div>
                     {{/tests}}

@@ -3,7 +3,7 @@ type result = { commit : string; timestamp : float; value : value }
 type test = { name : string; results : result list }
 type group = { name : string; tests : test list }
 type collection = { name : string; groups : group list }
-type project = { name : string; collections : collection list }
+type project = { name : string; collections : collection list; url : string }
 type t = project list
 
 let group_by f lst =

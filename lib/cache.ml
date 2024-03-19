@@ -226,6 +226,7 @@ let load cache_root =
          in
          {
            name = config.name;
+           url = config.url;
            collections =
              Sys.readdir project_dir_path
              |> Array.to_list

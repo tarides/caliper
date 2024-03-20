@@ -8,7 +8,7 @@ set -euo pipefail
 
 DOCKER_CONTAINER="current-bench_db_1"
 HERE=$(dirname "$0")
-CB_DUMP=$(realpath "${HERE}/../cb-data/")
+CB_DUMP=$(realpath "${HERE}/../cb-dump/")
 
 cd "$HERE" || exit
 docker cp ./cb-dump.sql "${DOCKER_CONTAINER}":cb-dump.sql

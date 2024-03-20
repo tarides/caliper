@@ -4,7 +4,7 @@
 set -euo pipefail
 
 HERE=$(dirname "$0")
-CB_DUMP=$(realpath "${HERE}/../cb-data/")
+CB_DUMP=$(realpath "${HERE}/../cb-dump/")
 
 # Generate HTML for the dumped data
 CACHE=$(realpath "${HERE}/../cache/")

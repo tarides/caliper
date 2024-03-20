@@ -1,4 +1,13 @@
-type value = Empty | Int of int | Float of float | List of float list
+type value =
+  | Empty
+  | Int of int
+  | Float of float
+  | List of float list
+  (* FIXME: Current bench supports {avg; max; min} But, it's better to remove
+     support for this, and use list of floats?? But, converting current-bench
+     data wouldn't be possible.*)
+  | Assoc of (string * float) list
+
 type result = { commit : string; timestamp : float; value : value }
 type test = { name : string; results : result list }
 type group = { name : string; tests : test list }
@@ -110,6 +119,10 @@ module Json = struct
     | Int value -> `Float (float_of_int value)
     | Float value -> `Float value
     | List values -> `Float (Stats.mean values)
+    | Assoc values -> (
+        match List.find_opt (fun (x, _) -> x = "avg") values with
+        | Some (_, v) -> `Float v
+        | None -> `Null)
 
   let of_result result =
     `Assoc

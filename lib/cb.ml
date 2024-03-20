@@ -23,6 +23,9 @@ module Parse = struct
     | `List vs ->
         let values = vs |> List.map extract_number in
         Bench.List values
+    | `Assoc vs ->
+        let values = vs |> List.map (fun (k, v) -> (k, extract_number v)) in
+        Bench.Assoc values
     | `Float v -> Bench.Float v
     | `Int v -> Bench.Int v
     | _ -> raise Invalid_JSON

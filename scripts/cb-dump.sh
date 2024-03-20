@@ -8,7 +8,8 @@ set -euo pipefail
 
 DOCKER_CONTAINER="current-bench_db_1"
 HERE=$(dirname "$0")
-CB_DUMP=$(realpath "${HERE}/../cb-dump/")
+CB_DIR="cb-dump"
+CB_DUMP=$(realpath "${HERE}/../${CB_DIR}/")
 
 cd "$HERE" || exit
 docker cp ./cb-dump.sql "${DOCKER_CONTAINER}":cb-dump.sql
@@ -21,3 +22,6 @@ for f in $FILES;
 do
     docker cp "${DOCKER_CONTAINER}:$f" "${CB_DUMP}/$f"
 done
+
+cd ..
+tar cvzf cb-dump.tar.gz "${CB_DIR}"

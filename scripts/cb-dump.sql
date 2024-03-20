@@ -26,3 +26,23 @@ WITH t AS (
      ORDER BY run_at DESC
 )
 SELECT json_agg(t) FROM t \g 'dune--monorepo.json'
+
+-- Dump merlin benchmark data
+WITH t AS (
+     SELECT commit,run_at,pull_number,benchmark_name,test_name,metrics,repo_id FROM benchmarks
+     WHERE
+        repo_id = 'ocaml/merlin' AND
+        (branch = 'master' OR pull_number = NULL)
+     ORDER BY run_at DESC
+)
+SELECT json_agg(t) FROM t \g 'merlin--default.json'
+
+-- Dump odoc benchmark data
+WITH t AS (
+     SELECT commit,run_at,pull_number,benchmark_name,test_name,metrics,repo_id FROM benchmarks
+     WHERE
+        repo_id = 'ocaml/odoc' AND
+        (branch = 'master' OR pull_number = NULL)
+     ORDER BY run_at DESC
+)
+SELECT json_agg(t) FROM t \g 'odoc--default.json'

@@ -11,6 +11,7 @@ CACHE=$(realpath "${HERE}/../cache/")
 echo "Generating cache dir ..."
 for f in "${CB_DUMP}"/*.json;
 do
+    echo "Parsing ${f} ..."
     dune exec -- bin/main.exe parse-cb-json --cache-dir="${CACHE}" --json-dump "${f}"
 done
 echo "Generating HTML ..."
